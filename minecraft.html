@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servidor de Minecraft</title>
+  <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+  <div class="background-image"></div>
+  <header>
+    <div class="logo">
+      <img src="logo.png" alt="Logo" />
+      <div>
+        <strong>PixelHub</strong>
+      </div>
+    </div>
+    <nav aria-label="Navegación principal">
+      <a href="Index.html">Inicio</a>
+      <a href="comunidad.html">Comunidad</a>
+      <a href="minecraft.html">Servidor de Minecraft</a>
+    </nav>
+    <button id="theme-toggle" class="button secondary">Modo Oscuro</button>
+  </header>
+
+  <main>
+    <section class="section">
+      <h2>Servidor de Minecraft</h2>
+      <p>Nuestro servidor de Minecraft ofrece una experiencia única con survival custom, un sistema de niveles avanzado y rangos que recompensan la dedicación. Disfruta de minijuegos emocionantes como Skywars, Paintball, y próximamente Capture the Wool en desarrollo. ¡Únete a la aventura!</p>
+      <p class="server-ip">IP del servidor: <strong>Pixelzone.sytes.net</strong></p>
+      <a href="Index.html" class="button primary">Volver al Inicio</a>
+    </section>
+  </main>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      themeToggle.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    window.addEventListener('load', () => {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = 'Modo Claro';
+      }
+    });
+  </script>
+</body>
+</html>
