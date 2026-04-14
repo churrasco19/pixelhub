@@ -1,36 +1,59 @@
 <!DOCTYPE html>
+<!-- Declaración del tipo de documento -->
 <html lang="es">
+<!-- Sección de metadatos -->
 <head>
+
+  <!-- Metadatos para codificación y viewport -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Título de la página -->
   <title>Landing Semántica</title>
+  <!-- Enlace al archivo CSS -->
   <link rel="stylesheet" href="estilo.css" />
 </head>
+<!-- Fin de la sección head -->
+<!-- Cuerpo del documento -->
 <body>
+  <!-- Imagen de fondo -->
   <div class="background-image"></div>
+  <!-- Cabecera de la página -->
   <header>
+    <!-- Logo de la página -->
     <div class="logo">
       <img src="logo.png" alt="Logo" />
       <div>
         <strong>PixelHub</strong>
       </div>
     </div>
+    <!-- Navegación principal -->
     <nav aria-label="Navegación principal">
       <a href="#hero">Inicio</a>
       <a href="comunidad.html">Comunidad</a>
       <a href="minecraft.html">Servidor de Minecraft</a>
     </nav>
+    <!-- Botón para alternar tema -->
     <button id="theme-toggle" class="button secondary">Modo Oscuro</button>
   </header>
+  <!-- Fin de la cabecera -->
 
+  <!-- Contenido principal -->
   <main>
+    <!-- Sección principal (hero) -->
     <section id="hero" class="hero" aria-label="Sección principal">
+      <!-- Título principal -->
       <h1>Bienvenido a PixelHub.</h1>
+      <!-- Descripción -->
       <p>Unete a nuestros canales de discord y whatsapp</p>
+      <!-- Llamado a la acción -->
       <div class="cta">
+        <!-- Botón comenzar -->
         <button class="button primary" type="button" id="start-button">Comenzar</button>
+        <!-- Botón ver características -->
         <button class="button secondary" type="button" id="features-button">Ver características</button>
+        <!-- Enlace a Discord -->
         <a href="https://discord.gg/dcTVf6UHCG" class="button primary" target="_blank">Unirse ahora</a>
+        <!-- Botones sociales -->
         <div class="social-buttons" id="social-buttons" style="display: none;">
           <a href="https://discord.gg/dcTVf6UHCG" class="social discord" target="_blank" rel="noopener noreferrer">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -46,24 +69,32 @@
             WhatsApp
           </a>
         </div>
+        <!-- Descripción de características -->
         <div id="features-description" style="display: none;">
           <p>Somos una comunidad vibrante de videojuegos dedicada a conectar a apasionados gamers de todas partes. Nos enfocamos en organizar eventos emocionantes como torneos competitivos, sesiones de juego en equipo y desafíos únicos que fomentan la camaradería y el espíritu competitivo. Además, ayudamos a las personas a encontrar compañeros de juego ideales, creando grupos para juegos multijugador, colaborativos o simplemente para disfrutar juntos. Nuestra comunidad valora la inclusión, el respeto y la diversión, ofreciendo un espacio seguro donde todos pueden compartir experiencias, aprender y crecer en el mundo de los videojuegos.</p>
         </div>
       </div>
+      <!-- Fin del llamado a la acción -->
     </section>
+    <!-- Fin de la sección hero -->
   </main>
+  <!-- Fin del contenido principal -->
 
+  <!-- Scripts de JavaScript -->
   <script>
+    // Evento para mostrar/ocultar botones sociales
     document.getElementById('start-button').addEventListener('click', () => {
       const socialButtons = document.getElementById('social-buttons');
       socialButtons.style.display = socialButtons.style.display === 'flex' ? 'none' : 'flex';
     });
 
+    // Evento para mostrar/ocultar descripción de características
     document.getElementById('features-button').addEventListener('click', () => {
       const desc = document.getElementById('features-description');
       desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
     });
 
+    // Evento para alternar tema oscuro/claro
     const themeToggle = document.getElementById('theme-toggle');
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark');
@@ -72,6 +103,7 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
+    // Evento al cargar la página para aplicar tema guardado
     window.addEventListener('load', () => {
       const theme = localStorage.getItem('theme');
       if (theme === 'dark') {
@@ -80,5 +112,8 @@
       }
     });
   </script>
+  <!-- Fin de los scripts -->
 </body>
+<!-- Fin del cuerpo -->
 </html>
+<!-- Fin del documento HTML -->
