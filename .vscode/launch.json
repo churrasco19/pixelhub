@@ -9,7 +9,7 @@
             "name": "Launch index.html",
             "type": "chrome",
             "request": "launch",
-            "file": "${workspaceFolder}/Index.html",
+            "file": "${workspaceFolder}/.vscode/Index.html",
             "runtimeExecutable": "C:\\Users\\miste\\AppData\\Local\\Programs\\Opera GX\\opera.exe"
         }
     ]
