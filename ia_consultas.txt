@@ -1,0 +1,313 @@
+================================================================================
+IA_CONSULTAS.TXT - Documentación de Prompts Utilizados
+================================================================================
+Proyecto: PixelHub - Evaluación 2
+Descripción: Sistema de autenticación, carrusel de imágenes y eventos protegidos
+Fecha: Mayo 2026
+
+================================================================================
+PROMPT PRINCIPAL (Completo)
+================================================================================
+
+En el header, añade **botones** visibles: **Iniciar sesión** y **Registrarse** en 
+la esquina superior derecha.
+- Al hacer click abren **modales accesibles** (atributos aria-modal, role="dialog", 
+  aria-labelledby).
+- Cuando el usuario esté logueado, reemplaza esos botones por **"Hola, <nombre>"** 
+  y un botón **Cerrar sesión**.
+- Implementa funciones modulares: `registrarUsuario(formData)`, `loginUsuario(formData)`, 
+  `logout()`, `actualizarDOMAuthState()`.
+
+Formularios accesibles:
+- **Registro**: campos `nombre`, `email`, `password`, `confirmPassword`. Cada `<label>` 
+  debe tener `for` que coincida con el `id` del input.
+- **Login**: campos `email`, `password`. Labels vinculados.
+- **Contacto**: mantener el formulario existente (nombre, email, mensaje) con labels 
+  vinculados.
+- Mensajes de error inline que se muestran desde JS (elementos con clase `.error`).
+
+Validaciones y seguridad (JS):
+- Validaciones en cliente:
+  - No permitir campos vacíos.
+  - Email con regex robusta.
+  - Password mínimo 8 caracteres; confirmación debe coincidir.
+- Simular hashing de contraseña con función `hashPassword(password)` (explicar en 
+  comentario que es solo demo).
+- Escapar todo texto de usuario antes de insertarlo en el DOM con `escapeHtml(str)` 
+  para prevenir XSS.
+- Guardar usuarios en `localStorage` bajo la clave `pixelhub_users` y sesión en 
+  `pixelhub_session`.
+- Documentar en comentarios que en producción el hashing y almacenamiento deben 
+  hacerse en servidor.
+
+Estructuras de datos y modularidad:
+- Usar objetos `User` con campos `{id, nombre, email, passwordHash, createdAt}`.
+- Mantener un arreglo `users` cargado/guardado desde `localStorage`.
+- Organizar funciones: `loadUsers()`, `saveUsers()`, `validarEmail()`, `validarCampos()`, 
+  `registrarUsuario()`, `loginUsuario()`, `logout()`, `getSessionUser()`.
+
+Carrusel:
+- Implementar carrusel funcional con al menos 3 imágenes (usar rutas relativas 
+  `imagenes/img1.jpg` etc. o las que ya tengas).
+- Botones **Anterior** y **Siguiente** que llamen `cambiarImagen(delta)` y actualicen 
+  `#carouselImg`.
+- Función `inicializarCarrusel()` que se ejecute en DOMContentLoaded.
+
+Eventos protegidos:
+- Crear array `events` con 3 objetos:
+  - **Furia De Bedwars** — horario y descripción: "Aquí se realizará tal tal, más 
+    camas destruidas ganan".
+  - **Mejor Casa** — horario y descripción: "Arma tu mejor casa en survival".
+  - **Torneo Skywars** — horario y descripción: "Compite en rondas de 24 mapas y 
+    obtén el mayor puntaje".
+- Cada evento debe tener `requiresAuth: true`.
+- Implementar `renderEvents()` que:
+  - Si hay sesión activa muestra título, horario y descripción.
+  - Si no hay sesión muestra tarjeta con título, horario y un CTA que abre modal 
+    de login y texto "Debes iniciar sesión para ver detalles".
+- Añadir botón para inscribirse al evento que solo funcione si el usuario está 
+  logueado (simulación: al inscribirse mostrar toast o mensaje).
+
+Accesibilidad y UX:
+- Modales cerrables con ESC y click fuera.
+- Focus trap básico al abrir modal (enfocar primer input).
+- Mensajes de éxito/error claros y visibles.
+
+Entregables y evidencias IA:
+- `ia_consultas.txt` debe contener los prompts usados (incluye el prompt completo 
+  que estás recibiendo ahora y los prompts para carrusel, validaciones y eventos).
+- Incluye comentarios en app.js que expliquen cada función y las recomendaciones 
+  de seguridad.
+
+Salida solicitada:
+- Devuélveme **solo** los contenidos completos de `index.html`, `app.js` y 
+  `ia_consultas.txt` (cada archivo separado por un encabezado claro como ### index.html). 
+- No incluyas CSS (usaré mi estilo existente).
+- Asegúrate de que los ids y clases coincidan con los fragmentos que ya tengo en 
+  mi proyecto.
+
+Sugerencias de commits para el repo nombre_apellido_eva2:
+- Commit 1: "Estructura: header, carrusel, formularios y secciones"
+- Commit 2: "Lógica JS: registro, login, carrusel y render de eventos"
+- Commit 3: "Final: validaciones, seguridad, ia_consultas.txt y ajustes"
+
+Genera el código listo para pegar en tus archivos. Gracias.
+
+================================================================================
+PROMPT SECUNDARIO 1: Carrusel Funcional
+================================================================================
+
+Necesito un carrusel/slider con las siguientes características:
+- Mínimo 3 imágenes usando rutas relativas (imagenes/pixelhub.png, 
+  imagenes/pixelhubNoche.jpeg, imagenes/logo.png)
+- Botones "Anterior" y "Siguiente" funcionales
+- Indicadores/dots para navegar a imágenes específicas
+- Función cambiarImagen(delta) que navegue circularmente
+- Inicialización en DOMContentLoaded
+- Accesibilidad: aria-label en botones e indicadores
+- Sin dependencias externas (vanilla JavaScript)
+
+Estructura esperada en HTML:
+- ID #carousel-section para la sección
+- ID #carouselImg para la imagen
+- ID #prevBtn y #nextBtn para botones
+- ID #carouselIndicators para los dots
+
+================================================================================
+PROMPT SECUNDARIO 2: Validaciones Robustas y Seguridad
+================================================================================
+
+Implementar validaciones y seguridad para formularios:
+
+1. Validación de Email:
+   - Regex robusta que acepte formatos comunes: user@domain.ext, user+tag@domain.co.uk
+   - Función validarEmail(email) que retorne boolean
+
+2. Validación de Contraseña:
+   - Mínimo 8 caracteres
+   - Función validarPassword(password) que retorne {valido, error}
+   - Función validarCoincidenciaPassword(pass1, pass2)
+
+3. Validación General:
+   - Función validarCampos(campos) que retorne {valido, errores}
+   - No permitir campos vacíos
+
+4. Seguridad contra XSS:
+   - Función escapeHtml(str) que convierta <, >, &, ", ' a entidades HTML
+   - Usar siempre al insertar contenido de usuario en DOM
+
+5. Hashing de Contraseña (Demo):
+   - Función hashPassword(password) usando crypto.subtle.digest('SHA-256')
+   - Comentar que es SOLO para demostración educativa
+   - En producción usar bcrypt en servidor
+
+6. Gestión de Errores:
+   - Mostrar errores inline bajo cada campo
+   - Clase .error en elementos <span>
+   - Función mostrarError(fieldId, errorId, mensaje)
+   - Función limpiarError(fieldId, errorId)
+
+================================================================================
+PROMPT SECUNDARIO 3: Eventos Protegidos y Autenticación
+================================================================================
+
+Implementar sistema de eventos que requieren autenticación:
+
+1. Array de Eventos:
+   - 3 eventos: Furia De Bedwars, Mejor Casa, Torneo Skywars
+   - Estructura: {id, titulo, horario, descripcion, requiresAuth: true}
+   - Cada evento con hora y descripción específica
+
+2. Renderizado Condicional (renderEvents):
+   - Si usuario logueado (getSessionUser() !== null):
+     * Mostrar título, horario, descripción completa
+     * Botón "Inscribirse" funcional
+   - Si NO logueado:
+     * Mostrar tarjeta con titulo y horario
+     * Mensaje: "Debes iniciar sesión para ver detalles"
+     * Botón que abre modal de login
+
+3. Inscripción:
+   - Función inscribirseAlEvento(eventId)
+   - Simular persistencia (array userInscriptions)
+   - Mostrar toast de confirmación
+   - Toggle entre "Inscribirse" e "Inscrito"
+
+4. Toast Notifications:
+   - Función mostrarToast(mensaje)
+   - Notificaciones no bloqueantes
+   - Desaparecer después de 3 segundos
+   - Accesibilidad: role="status", aria-live="polite"
+
+================================================================================
+PROMPT SECUNDARIO 4: Modales Accesibles
+================================================================================
+
+Crear modales para Login y Registro con accesibilidad:
+
+1. Atributos ARIA:
+   - role="dialog"
+   - aria-modal="true"
+   - aria-labelledby="modalTitleId"
+   - aria-label en botones de cierre
+
+2. Funcionalidad:
+   - openModal(modalId) - abre modal + overlay
+   - closeModal(modalId) - cierra modal + overlay
+   - Cerrable con tecla ESC
+   - Cerrable con click fuera del modal (en overlay)
+
+3. Focus Management:
+   - Al abrir: enfocar primer input (focus trap básico)
+   - Permitir tabbing normal dentro del modal
+
+4. Navegación entre Modales:
+   - Botón "Regístrate aquí" en login abre registro
+   - Botón "Inicia sesión" en registro abre login
+   - Transición suave (close + delay + open)
+
+5. Validación Inline:
+   - Mostrar errores sin salir del modal
+   - Función limpiarTodosLosErrores(errorIds)
+
+================================================================================
+RECOMENDACIONES DE SEGURIDAD DOCUMENTADAS
+================================================================================
+
+1. CLIENT-SIDE (implementado en este proyecto):
+   - Validación de entrada
+   - Escape HTML contra XSS
+   - Hashing simulado (SHA-256)
+
+2. SERVER-SIDE (implementar en producción):
+   - ¡NUNCA confiar en validaciones de cliente!
+   - Usar bcrypt o Argon2 para hashing (NO SHA-256)
+   - HTTPS obligatorio
+   - JWT con expiración para sesiones
+   - SQL injection prevention (queries parametrizadas)
+   - Rate limiting en endpoints de auth
+   - CORS bien configurado
+   - CSP headers
+   - Logout seguro (eliminar todas las sesiones)
+
+3. ALMACENAMIENTO (producción):
+   - NO guardar contraseñas en localStorage
+   - JWT en httpOnly cookie
+   - Sesiones en base de datos del servidor
+   - Datos de usuario cifrados en tránsito
+
+4. COMENTARIOS EN CÓDIGO:
+   - Cada función de seguridad tiene comentarios explicativos
+   - Señalar dónde se necesita implementación en servidor
+
+================================================================================
+ARCHIVOS GENERADOS
+================================================================================
+
+1. Index.html (actualizado)
+   - Header con botones auth
+   - Modales de login y registro
+   - Sección de carrusel
+   - Sección de eventos
+   - Sección de contacto
+   - Todos con IDs y clases requeridas
+
+2. app.js (nuevo)
+   - Funciones de seguridad (escapeHtml, hashPassword)
+   - Validaciones (validarEmail, validarPassword, validarCampos)
+   - Gestión de usuarios (loadUsers, saveUsers, registrarUsuario, loginUsuario)
+   - Control de sesión (getSessionUser, logout)
+   - Carrusel (inicializarCarrusel, cambiarImagen, actualizarCarrusel)
+   - Eventos (renderEvents, inscribirseAlEvento, mostrarToast)
+   - Modales (openModal, closeModal)
+   - Inicialización en DOMContentLoaded
+   - ~800 líneas con comentarios detallados
+
+3. ia_consultas.txt (este archivo)
+   - Documentación completa de prompts
+   - Recomendaciones de seguridad
+   - Estructura de datos
+
+================================================================================
+NOTAS DE DESARROLLO
+================================================================================
+
+- El hashing SHA-256 es SOLO educativo. En producción usar bcrypt en servidor.
+- localStorage NO es seguro para datos sensibles en producción.
+- Todos los formularios tienen validación en cliente Y errores inline.
+- Carrusel circular: última imagen -> primera imagen, etc.
+- Eventos condicionales según sesión activa.
+- Toast notifications para feedback visual.
+- Modal con focus trap básico (enfocar primer input).
+- Cerrable con ESC y click fuera.
+- Todos los textos escapados para prevenir XSS.
+
+================================================================================
+SUGERENCIAS DE COMMITS GIT
+================================================================================
+
+Commit 1: "Estructura: header, carrusel, formularios y secciones"
+- Agregar buttons auth en header
+- Agregar sección carrusel en HTML
+- Agregar sección eventos
+- Agregar sección contacto
+- Agregar modales login/registro
+
+Commit 2: "Lógica JS: registro, login, carrusel y render de eventos"
+- Implementar funciones de autenticación
+- Implementar carrusel funcional
+- Implementar renderizado de eventos
+- Implementar modales accesibles
+
+Commit 3: "Final: validaciones, seguridad, ia_consultas.txt y ajustes"
+- Validaciones robustas en formularios
+- Escape HTML y prevención XSS
+- Hasheo de contraseña (demo)
+- Manejo de errores inline
+- Toast notifications
+- Documentación ia_consultas.txt
+- Pruebas funcionales
+
+================================================================================
+FIN DE DOCUMENTACIÓN
+================================================================================

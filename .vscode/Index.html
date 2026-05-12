@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<!-- Declaración del tipo de documento -->
+<html lang="es">
+<!-- Sección de metadatos -->
+<head>
+  <!-- Metadatos para codificación y viewport -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Título de la página -->
+  <title>Landing Semántica - PixelHub</title>
+  <!-- Enlace al archivo CSS -->
+  <link rel="stylesheet" href="../estilo.css" />
+</head>
+<!-- Fin de la sección head -->
+<!-- Cuerpo del documento -->
+<body>
+  <!-- Imagen de fondo -->
+  <div class="background-image"></div>
+  
+  <!-- Cabecera de la página -->
+  <header>
+    <!-- Logo de la página -->
+    <div class="logo">
+      <img src="../imagenes/logo.png" alt="Logo de PixelHub" />
+      <div>
+        <strong>PixelHub</strong>
+      </div>
+    </div>
+    
+    <!-- Navegación principal -->
+    <nav aria-label="Navegación principal">
+      <a href="#hero">Inicio</a>
+      <a href="comunidad.html">Comunidad</a>
+      <a href="minecraft.html">Servidor de Minecraft</a>
+    </nav>
+    
+    <!-- Contenedor de autenticación en el header -->
+    <div class="auth-buttons-container" id="authButtonsContainer">
+      <!-- Botones de login/registro (mostrados cuando NO está logueado) -->
+      <button id="loginBtn" class="button secondary" aria-label="Abrir modal de iniciar sesión">Iniciar sesión</button>
+      <button id="registerBtn" class="button primary" aria-label="Abrir modal de registro">Registrarse</button>
+      
+      <!-- Contenedor de usuario logueado (mostrado cuando SÍ está logueado) -->
+      <div id="userGreeting" style="display: none;" class="user-greeting">
+        <span id="userNameDisplay" aria-live="polite">Hola, Usuario</span>
+        <button id="logoutBtn" class="button secondary" aria-label="Cerrar sesión">Cerrar sesión</button>
+      </div>
+    </div>
+    
+    <!-- Botón para alternar tema -->
+    <button id="theme-toggle" class="button secondary">Modo Oscuro</button>
+  </header>
+  <!-- Fin de la cabecera -->
+
+  <!-- Contenido principal -->
+  <main>
+    <!-- Sección principal (hero) -->
+    <section id="hero" class="hero" aria-label="Sección principal">
+      <!-- Título principal -->
+      <h1>Bienvenido a PixelHub.</h1>
+      <!-- Descripción -->
+      <p>Únete a nuestros canales de Discord y WhatsApp</p>
+      <!-- Llamado a la acción -->
+      <div class="cta">
+        <!-- Botón comenzar -->
+        <button class="button primary" type="button" id="start-button" aria-label="Mostrar botones sociales">Comenzar</button>
+        <!-- Botón ver características -->
+        <button class="button secondary" type="button" id="features-button" aria-label="Ver descripción de características">Ver características</button>
+        <!-- Enlace a Discord -->
+        <a href="https://discord.gg/dcTVf6UHCG" class="button primary" target="_blank" rel="noopener noreferrer">Unirse ahora</a>
+        <!-- Botones sociales -->
+        <div class="social-buttons" id="social-buttons" style="display: none;">
+          <a href="https://discord.gg/dcTVf6UHCG" class="social discord" target="_blank" rel="noopener noreferrer" aria-label="Unirse a Discord">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+            Discord
+          </a>
+          <a href="https://chat.whatsapp.com/BbGFrx1QPbgCjFg2PmMJ9B" class="social whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Unirse a WhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.672.15-.198.297-.768.967-.94 1.165-.173.198-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.149-.173.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.148-.672-1.62-.921-2.219-.242-.583-.487-.503-.672-.513l-.572-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.064 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.262.489 1.693.626.712.226 1.36.194 1.872.118.572-.085 1.758-.719 2.007-1.413.248-.694.248-1.289.173-1.413-.074-.124-.273-.198-.57-.347z"/>
+              <path d="M12.004 2.003C6.477 2.003 2 6.48 2 12.006c0 1.99.522 3.84 1.425 5.437L2 22l4.753-1.241c1.55.85 3.3 1.307 5.25 1.307 5.526 0 10.003-4.476 10.003-10.002S17.53 2.003 12.004 2.003zm0 18.019c-1.78 0-3.47-.476-4.92-1.305l-.35-.207-2.82.737.753-2.756-.228-.363A7.936 7.936 0 0 1 4 12.006c0-4.411 3.591-8.003 8.004-8.003 4.412 0 8.003 3.592 8.003 8.003 0 4.412-3.591 8.003-8.003 8.003z"/>
+            </svg>
+            WhatsApp
+          </a>
+        </div>
+        <!-- Descripción de características -->
+        <div id="features-description" style="display: none;" role="region" aria-live="polite">
+          <p>Somos una comunidad vibrante de videojuegos dedicada a conectar a apasionados gamers de todas partes. Nos enfocamos en organizar eventos emocionantes como torneos competitivos, sesiones de juego en equipo y desafíos únicos que fomentan la camaradería y el espíritu competitivo. Además, ayudamos a las personas a encontrar compañeros de juego ideales, creando grupos para juegos multijugador, colaborativos o simplemente para disfrutar juntos. Nuestra comunidad valora la inclusión, el respeto y la diversión, ofreciendo un espacio seguro donde todos pueden compartir experiencias, aprender y crecer en el mundo de los videojuegos.</p>
+        </div>
+      </div>
+      <!-- Fin del llamado a la acción -->
+    </section>
+    <!-- Fin de la sección hero -->
+
+    <!-- SECCIÓN DE CARRUSEL -->
+    <section id="carousel-section" class="carousel-section" aria-label="Carrusel de imágenes">
+      <h2>Galería de PixelHub</h2>
+      <div class="carousel-container">
+        <button id="prevBtn" class="carousel-btn prev" aria-label="Imagen anterior">
+          &#10094; Anterior
+        </button>
+        <div class="carousel-wrapper">
+          <img id="carouselImg" src="../imagenes/pixelhub.png" alt="Galería de PixelHub" class="carousel-image" />
+        </div>
+        <button id="nextBtn" class="carousel-btn next" aria-label="Imagen siguiente">
+          Siguiente &#10095;
+        </button>
+      </div>
+      <div class="carousel-indicators" id="carouselIndicators" aria-label="Indicadores del carrusel"></div>
+    </section>
+    <!-- FIN SECCIÓN CARRUSEL -->
+
+    <!-- SECCIÓN DE EVENTOS -->
+    <section id="events-section" class="events-section" aria-label="Eventos próximos">
+      <h2>Eventos Próximos</h2>
+      <div id="events-container" class="events-container" role="region" aria-live="polite" aria-label="Lista de eventos"></div>
+    </section>
+    <!-- FIN SECCIÓN EVENTOS -->
+
+    <!-- SECCIÓN DE CONTACTO -->
+    <section id="contact-section" class="contact-section" aria-label="Formulario de contacto">
+      <h2>Contacto</h2>
+      <form id="contactForm" aria-label="Formulario de contacto">
+        <div class="form-group">
+          <label for="contactName">Nombre:</label>
+          <input 
+            type="text" 
+            id="contactName" 
+            name="nombre" 
+            required 
+            aria-required="true"
+            aria-describedby="contactNameError"
+          />
+          <span id="contactNameError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="contactEmail">Email:</label>
+          <input 
+            type="email" 
+            id="contactEmail" 
+            name="email" 
+            required 
+            aria-required="true"
+            aria-describedby="contactEmailError"
+          />
+          <span id="contactEmailError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="contactMessage">Mensaje:</label>
+          <textarea 
+            id="contactMessage" 
+            name="mensaje" 
+            required 
+            aria-required="true"
+            aria-describedby="contactMessageError"
+          ></textarea>
+          <span id="contactMessageError" class="error" role="alert"></span>
+        </div>
+
+        <button type="submit" class="button primary">Enviar Mensaje</button>
+        <div id="contactSuccess" class="success-message" role="alert" style="display: none;"></div>
+      </form>
+    </section>
+    <!-- FIN SECCIÓN CONTACTO -->
+  </main>
+  <!-- Fin del contenido principal -->
+
+  <!-- MODAL DE LOGIN -->
+  <div 
+    id="loginModal" 
+    class="modal" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="loginTitle"
+    style="display: none;"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="loginTitle">Iniciar Sesión</h2>
+        <button id="closeLoginBtn" class="modal-close" aria-label="Cerrar modal de iniciar sesión">×</button>
+      </div>
+      <form id="loginForm" class="form-content">
+        <div class="form-group">
+          <label for="loginEmail">Email:</label>
+          <input 
+            type="email" 
+            id="loginEmail" 
+            name="email" 
+            required 
+            aria-required="true"
+            aria-describedby="loginEmailError"
+          />
+          <span id="loginEmailError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Contraseña:</label>
+          <input 
+            type="password" 
+            id="loginPassword" 
+            name="password" 
+            required 
+            aria-required="true"
+            aria-describedby="loginPasswordError"
+          />
+          <span id="loginPasswordError" class="error" role="alert"></span>
+        </div>
+
+        <button type="submit" class="button primary">Iniciar Sesión</button>
+        <div id="loginError" class="error" role="alert"></div>
+        <p class="modal-footer-text">¿No tienes cuenta? <button type="button" id="switchToRegisterBtn" class="link-button">Regístrate aquí</button></p>
+      </form>
+    </div>
+  </div>
+  <!-- FIN MODAL LOGIN -->
+
+  <!-- MODAL DE REGISTRO -->
+  <div 
+    id="registerModal" 
+    class="modal" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="registerTitle"
+    style="display: none;"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="registerTitle">Registrarse</h2>
+        <button id="closeRegisterBtn" class="modal-close" aria-label="Cerrar modal de registro">×</button>
+      </div>
+      <form id="registerForm" class="form-content">
+        <div class="form-group">
+          <label for="registerName">Nombre:</label>
+          <input 
+            type="text" 
+            id="registerName" 
+            name="nombre" 
+            required 
+            aria-required="true"
+            aria-describedby="registerNameError"
+          />
+          <span id="registerNameError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">Email:</label>
+          <input 
+            type="email" 
+            id="registerEmail" 
+            name="email" 
+            required 
+            aria-required="true"
+            aria-describedby="registerEmailError"
+          />
+          <span id="registerEmailError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Contraseña:</label>
+          <input 
+            type="password" 
+            id="registerPassword" 
+            name="password" 
+            required 
+            aria-required="true"
+            aria-describedby="registerPasswordError"
+          />
+          <span id="registerPasswordError" class="error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerConfirmPassword">Confirmar Contraseña:</label>
+          <input 
+            type="password" 
+            id="registerConfirmPassword" 
+            name="confirmPassword" 
+            required 
+            aria-required="true"
+            aria-describedby="registerConfirmPasswordError"
+          />
+          <span id="registerConfirmPasswordError" class="error" role="alert"></span>
+        </div>
+
+        <button type="submit" class="button primary">Registrarse</button>
+        <div id="registerError" class="error" role="alert"></div>
+        <p class="modal-footer-text">¿Ya tienes cuenta? <button type="button" id="switchToLoginBtn" class="link-button">Inicia sesión aquí</button></p>
+      </form>
+    </div>
+  </div>
+  <!-- FIN MODAL REGISTRO -->
+
+  <!-- OVERLAY PARA MODALES -->
+  <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
+
+  <!-- Scripts de JavaScript -->
+  <script src="app.js"></script>
+  <script>
+    // Script inline para temas (tema existente)
+    const themeToggle = document.getElementById('theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      themeToggle.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    // Evento al cargar la página para aplicar tema guardado
+    window.addEventListener('load', () => {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.textContent = 'Modo Claro';
+      }
+    });
+
+    // Evento para mostrar/ocultar botones sociales
+    document.getElementById('start-button').addEventListener('click', () => {
+      const socialButtons = document.getElementById('social-buttons');
+      socialButtons.style.display = socialButtons.style.display === 'flex' ? 'none' : 'flex';
+    });
+
+    // Evento para mostrar/ocultar descripción de características
+    document.getElementById('features-button').addEventListener('click', () => {
+      const desc = document.getElementById('features-description');
+      desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+    });
+  </script>
+  <!-- Fin de los scripts -->
+</body>
+<!-- Fin del cuerpo -->
+</html>
+<!-- Fin del documento HTML -->
