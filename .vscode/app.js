@@ -123,6 +123,7 @@ function validarCoincidenciaPassword(password, confirmPassword) {
 // Clave para almacenar usuarios en localStorage
 const USUARIOS_KEY = 'pixelhub_users';
 const SESSION_KEY = 'pixelhub_session';
+const INSCRIPTIONS_KEY = 'pixelhub_inscriptions';
 
 /**
  * Carga los usuarios desde localStorage
@@ -145,6 +146,15 @@ function loadUsers() {
  */
 function saveUsers(users) {
   localStorage.setItem(USUARIOS_KEY, JSON.stringify(users));
+}
+
+function loadInscriptions() {
+  const stored = localStorage.getItem(INSCRIPTIONS_KEY);
+  return stored ? JSON.parse(stored) : {};
+}
+
+function saveInscriptions(inscriptions) {
+  localStorage.setItem(INSCRIPTIONS_KEY, JSON.stringify(inscriptions));
 }
 
 /**
@@ -203,9 +213,12 @@ async function registrarUsuario(formData) {
     };
   }
 
+  // Normalizar email para comparación consistente
+  const normalizedEmail = formData.email.toLowerCase().trim();
+
   // Verificar si el email ya existe
   const users = loadUsers();
-  if (users.some(u => u.email === formData.email)) {
+  if (users.some(u => u.email === normalizedEmail)) {
     return {
       exito: false,
       mensaje: 'Este email ya está registrado.',
@@ -218,7 +231,7 @@ async function registrarUsuario(formData) {
   const nuevoUsuario = {
     id: Date.now(), // ID simple basado en timestamp
     nombre: escapeHtml(formData.nombre),
-    email: formData.email.toLowerCase(),
+    email: normalizedEmail,
     passwordHash: passwordHash,
     createdAt: new Date().toISOString()
   };
@@ -442,6 +455,8 @@ const carouselImages = [
 ];
 
 let currentImageIndex = 0;
+let carouselInterval = null;
+const carouselDelay = 4000;
 
 /**
  * Inicializa el carrusel: crea indicadores y configura botones
@@ -459,6 +474,7 @@ function inicializarCarrusel() {
     indicator.addEventListener('click', () => {
       currentImageIndex = index;
       actualizarCarrusel();
+      resetAutoplay();
     });
     indicators.appendChild(indicator);
   });
@@ -466,22 +482,47 @@ function inicializarCarrusel() {
   // Botones Anterior y Siguiente
   document.getElementById('prevBtn').addEventListener('click', () => {
     cambiarImagen(-1);
+    resetAutoplay();
   });
 
   document.getElementById('nextBtn').addEventListener('click', () => {
     cambiarImagen(1);
+    resetAutoplay();
   });
+
+  const carouselWrapper = document.querySelector('.carousel-wrapper');
+  carouselWrapper.addEventListener('mouseenter', pausarAutoplay);
+  carouselWrapper.addEventListener('mouseleave', iniciarAutoplay);
 
   // Inicializar primera imagen
   actualizarCarrusel();
+  iniciarAutoplay();
+}
+
+function iniciarAutoplay() {
+  pausarAutoplay();
+  carouselInterval = setInterval(() => cambiarImagen(1, false), carouselDelay);
+}
+
+function pausarAutoplay() {
+  if (carouselInterval) {
+    clearInterval(carouselInterval);
+    carouselInterval = null;
+  }
+}
+
+function resetAutoplay() {
+  pausarAutoplay();
+  iniciarAutoplay();
 }
 
 /**
  * Cambia la imagen del carrusel (anterior o siguiente)
  * 
  * @param {number} delta - -1 para anterior, +1 para siguiente
+ * @param {boolean} resetTimer - si debe reiniciar el autoplay tras el cambio
  */
-function cambiarImagen(delta) {
+function cambiarImagen(delta, resetTimer = true) {
   currentImageIndex += delta;
 
   // Circular
@@ -492,6 +533,9 @@ function cambiarImagen(delta) {
   }
 
   actualizarCarrusel();
+  if (resetTimer) {
+    resetAutoplay();
+  }
 }
 
 /**
@@ -499,6 +543,11 @@ function cambiarImagen(delta) {
  */
 function actualizarCarrusel() {
   const img = document.getElementById('carouselImg');
+  img.style.opacity = '0';
+  img.onload = () => {
+    img.style.opacity = '1';
+    img.onload = null;
+  };
   img.src = carouselImages[currentImageIndex];
 
   // Actualizar indicadores
@@ -554,6 +603,75 @@ let userInscriptions = {};
  * - Si hay sesión: muestra título, horario y descripción completa
  * - Si NO hay sesión: muestra CTA con botón para login
  */
+function renderRegistrationSummary() {
+  const users = loadUsers();
+  const inscriptions = loadInscriptions();
+  const usersList = document.getElementById('registeredUsersList');
+  const emailsList = document.getElementById('registeredEmailsList');
+  const eventInscriptionsList = document.getElementById('eventInscriptionsList');
+
+  if (!usersList || !emailsList || !eventInscriptionsList) {
+    return;
+  }
+
+  usersList.innerHTML = '';
+  emailsList.innerHTML = '';
+  eventInscriptionsList.innerHTML = '';
+
+  if (users.length === 0) {
+    usersList.innerHTML = '<li>No hay usuarios registrados todavía.</li>';
+    emailsList.innerHTML = '<li>No hay correos registrados todavía.</li>';
+  } else {
+    users.forEach(user => {
+      const item = document.createElement('li');
+      item.textContent = `${user.nombre} — ${user.email}`;
+      usersList.appendChild(item);
+    });
+
+    const latestUsers = users.slice(-5).reverse();
+    latestUsers.forEach(user => {
+      const item = document.createElement('li');
+      item.textContent = user.email;
+      emailsList.appendChild(item);
+    });
+  }
+
+  events.forEach(event => {
+    const eventGroup = document.createElement('div');
+    eventGroup.className = 'summary-event-group';
+
+    const title = document.createElement('p');
+    title.className = 'summary-event-title';
+    title.textContent = event.titulo;
+    eventGroup.appendChild(title);
+
+    const registrants = Object.entries(inscriptions)
+      .filter(([_, eventIds]) => Array.isArray(eventIds) && eventIds.includes(event.id))
+      .map(([userId]) => {
+        const foundUser = users.find(user => String(user.id) === String(userId));
+        return foundUser ? `${foundUser.nombre} — ${foundUser.email}` : `Usuario eliminado (${userId})`;
+      });
+
+    if (registrants.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'summary-empty';
+      empty.textContent = 'Nadie inscrito aún.';
+      eventGroup.appendChild(empty);
+    } else {
+      const list = document.createElement('ul');
+      list.className = 'summary-list';
+      registrants.forEach(text => {
+        const item = document.createElement('li');
+        item.textContent = text;
+        list.appendChild(item);
+      });
+      eventGroup.appendChild(list);
+    }
+
+    eventInscriptionsList.appendChild(eventGroup);
+  });
+}
+
 function renderEvents() {
   const container = document.getElementById('events-container');
   container.innerHTML = '';
@@ -637,8 +755,11 @@ function inscribirseAlEvento(eventId) {
     mostrarToast('Inscripción cancelada.');
   }
 
-  // Re-renderizar eventos
+  saveInscriptions(userInscriptions);
+
+  // Re-renderizar eventos y resumen de inscripciones
   renderEvents();
+  renderRegistrationSummary();
 }
 
 /**
@@ -694,8 +815,10 @@ function actualizarDOMAuthState() {
     userGreeting.style.display = 'none';
   }
 
-  // Re-renderizar eventos
+  // Re-renderizar eventos y resumen de registro
+  userInscriptions = loadInscriptions();
   renderEvents();
+  renderRegistrationSummary();
 }
 
 // ============================================================================
@@ -773,6 +896,7 @@ async function handleRegisterSubmit(e) {
     mostrarToast('¡Registro exitoso! Ahora inicia sesión. 🚀');
     closeModal('registerModal');
     document.getElementById('registerForm').reset();
+    renderRegistrationSummary();
     
     // Abrir modal de login automáticamente
     setTimeout(() => {
