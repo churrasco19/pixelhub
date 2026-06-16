@@ -124,6 +124,17 @@ function validarCoincidenciaPassword(password, confirmPassword) {
 const USUARIOS_KEY = 'pixelhub_users';
 const SESSION_KEY = 'pixelhub_session';
 const INSCRIPTIONS_KEY = 'pixelhub_inscriptions';
+const CUSTOM_EVENTS_KEY = 'pixelhub_custom_events';
+const OTHER_EVENTS_KEY = 'pixelhub_other_events';
+const POSTS_KEY = 'pixelhub_posts';
+const COMPLAINTS_KEY = 'pixelhub_complaints';
+const ADMIN_MODE_KEY = 'pixelhub_admin_mode';
+
+let customEvents = [];
+let otherEvents = [];
+let posts = [];
+let complaints = [];
+let adminMode = false;
 
 /**
  * Carga los usuarios desde localStorage
@@ -155,6 +166,51 @@ function loadInscriptions() {
 
 function saveInscriptions(inscriptions) {
   localStorage.setItem(INSCRIPTIONS_KEY, JSON.stringify(inscriptions));
+}
+
+function loadCustomEvents() {
+  const stored = localStorage.getItem(CUSTOM_EVENTS_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveCustomEvents(customEventsData) {
+  localStorage.setItem(CUSTOM_EVENTS_KEY, JSON.stringify(customEventsData));
+}
+
+function loadOtherEvents() {
+  const stored = localStorage.getItem(OTHER_EVENTS_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveOtherEvents(otherEventsData) {
+  localStorage.setItem(OTHER_EVENTS_KEY, JSON.stringify(otherEventsData));
+}
+
+function loadPosts() {
+  const stored = localStorage.getItem(POSTS_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function savePosts(postsData) {
+  localStorage.setItem(POSTS_KEY, JSON.stringify(postsData));
+}
+
+function loadComplaints() {
+  const stored = localStorage.getItem(COMPLAINTS_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveComplaints(complaintsData) {
+  localStorage.setItem(COMPLAINTS_KEY, JSON.stringify(complaintsData));
+}
+
+function loadAdminMode() {
+  const stored = localStorage.getItem(ADMIN_MODE_KEY);
+  return stored === 'true';
+}
+
+function saveAdminMode(value) {
+  localStorage.setItem(ADMIN_MODE_KEY, value.toString());
 }
 
 /**
@@ -227,12 +283,14 @@ async function registrarUsuario(formData) {
   }
 
   // Crear usuario con contraseña hasheada
+  const role = normalizedEmail === 'benjacastro942@gmail.com' ? 'admin' : 'user';
   const passwordHash = await hashPassword(formData.password);
   const nuevoUsuario = {
     id: Date.now(), // ID simple basado en timestamp
     nombre: escapeHtml(formData.nombre),
     email: normalizedEmail,
     passwordHash: passwordHash,
+    role,
     createdAt: new Date().toISOString()
   };
 
@@ -304,6 +362,7 @@ async function loginUsuario(formData) {
     userId: usuario.id,
     nombre: usuario.nombre,
     email: usuario.email,
+    role: usuario.role || 'user',
     loginTime: new Date().toISOString()
   };
 
@@ -449,9 +508,9 @@ function limpiarTodosLosErrores(errorIds) {
 
 // Array de imágenes del carrusel
 const carouselImages = [
-  '../imagenes/pixelhub.png',
-  '../imagenes/pixelhubNoche.jpeg',
-  '../imagenes/logo.png'
+  'imagenes/pixelhub.png',
+  'imagenes/pixelhubNoche.jpeg',
+  'imagenes/logo.png'
 ];
 
 let currentImageIndex = 0;
@@ -568,7 +627,7 @@ function actualizarCarrusel() {
  * Array de eventos con estructura:
  * {titulo, horario, descripcion, requiresAuth: true}
  */
-const events = [
+const DEFAULT_EVENTS = [
   {
     id: 1,
     titulo: 'Furia De Bedwars',
@@ -594,6 +653,8 @@ const events = [
     icono: '☁️'
   }
 ];
+
+let events = [...DEFAULT_EVENTS];
 
 // Array para almacenar inscripciones de usuario (simulado)
 let userInscriptions = {};
@@ -725,6 +786,288 @@ function renderEvents() {
   });
 }
 
+function renderOtherEventsSection() {
+  const container = document.getElementById('other-events-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  if (otherEvents.length === 0) {
+    container.innerHTML = '<p class="event-cta">No hay otros eventos todavía. Los administradores pueden crear esta sección.</p>';
+    return;
+  }
+
+  otherEvents.forEach(otherEvent => {
+    const eventCard = document.createElement('div');
+    eventCard.className = 'event-card';
+    eventCard.setAttribute('role', 'article');
+    eventCard.innerHTML = `
+      <div class="event-content">
+        <h3>${escapeHtml(otherEvent.titulo)}</h3>
+        <p class="event-descripcion">${escapeHtml(otherEvent.descripcion)}</p>
+      </div>
+    `;
+    container.appendChild(eventCard);
+  });
+}
+
+function renderPosts() {
+  const container = document.getElementById('postsContainer');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  if (posts.length === 0) {
+    container.innerHTML = '<p class="event-cta">Aún no hay publicaciones. Inicia sesión para compartir tu casa de Minecraft.</p>';
+    return;
+  }
+
+  const sessionUser = getSessionUser();
+  const canManagePosts = adminMode && sessionUser && sessionUser.role === 'admin';
+
+  posts.forEach(post => {
+    const postCard = document.createElement('article');
+    postCard.className = 'post-card';
+    postCard.setAttribute('role', 'article');
+    postCard.innerHTML = `
+      <div class="post-header">
+        <strong>${escapeHtml(post.author)}</strong>
+        <span>${new Date(post.createdAt).toLocaleString()}</span>
+      </div>
+      <p class="post-message">${escapeHtml(post.mensaje).replace(/\n/g, '<br/>')}</p>
+      ${post.image ? `<img src="${post.image}" alt="Imagen de publicación de ${escapeHtml(post.author)}" class="post-image" />` : ''}
+      ${canManagePosts ? `<button class="button secondary" type="button" onclick="handleDeletePost(${post.id})">Eliminar publicación</button>` : ''}
+    `;
+    container.appendChild(postCard);
+  });
+}
+
+function setAdminMode(value) {
+  adminMode = value;
+  saveAdminMode(value);
+  const adminOnlySection = document.getElementById('admin-only-section');
+  const toggleBtn = document.getElementById('toggleAdminModeBtn');
+  if (adminOnlySection) {
+    adminOnlySection.style.display = value ? 'block' : 'none';
+  }
+  if (toggleBtn) {
+    toggleBtn.textContent = value ? 'Salir Modo Admin' : 'Modo Admin';
+    toggleBtn.setAttribute('aria-label', value ? 'Desactivar modo admin' : 'Activar modo admin');
+  }
+  renderPosts();
+  renderAdminPanel();
+}
+
+function toggleAdminMode() {
+  const sessionUser = getSessionUser();
+  if (!sessionUser || sessionUser.role !== 'admin') return;
+  setAdminMode(!adminMode);
+}
+
+function renderAdminPanel() {
+  const sessionUser = getSessionUser();
+  const adminOnlySection = document.getElementById('admin-only-section');
+  if (!adminOnlySection) return;
+
+  if (!adminMode || !sessionUser || sessionUser.role !== 'admin') {
+    adminOnlySection.style.display = 'none';
+    return;
+  }
+
+  adminOnlySection.style.display = 'block';
+
+  const users = loadUsers();
+  const emailsList = document.getElementById('registeredEmailsList');
+  const complaintsList = document.getElementById('complaintsList');
+  const adminEmailsList = document.getElementById('adminEmailsList');
+
+  if (emailsList) {
+    emailsList.innerHTML = '';
+    users.forEach(user => {
+      const item = document.createElement('li');
+      item.textContent = `${user.email}`;
+      emailsList.appendChild(item);
+    });
+  }
+
+  if (complaintsList) {
+    complaintsList.innerHTML = '';
+    if (complaints.length === 0) {
+      complaintsList.innerHTML = '<li>No hay quejas registradas.</li>';
+    } else {
+      complaints.slice().reverse().forEach(complaint => {
+        const item = document.createElement('li');
+        item.innerHTML = `<strong>${escapeHtml(complaint.nombre || 'Anonimo')}</strong>: ${escapeHtml(complaint.mensaje)} <span class="complaint-meta">(${new Date(complaint.createdAt).toLocaleString()})</span>`;
+        complaintsList.appendChild(item);
+      });
+    }
+  }
+
+  if (adminEmailsList) {
+    adminEmailsList.innerHTML = '';
+    users.filter(user => user.role === 'admin').forEach(admin => {
+      const item = document.createElement('li');
+      item.textContent = admin.email;
+      adminEmailsList.appendChild(item);
+    });
+  }
+}
+
+function handleAddAdminByEmail(e) {
+  e.preventDefault();
+  const sessionUser = getSessionUser();
+  if (!sessionUser || sessionUser.email !== 'benjacastro942@gmail.com') {
+    mostrarToast('Solo benjacastro942@gmail.com puede agregar admins.');
+    return;
+  }
+  const emailInput = document.getElementById('addAdminEmail');
+  const email = emailInput.value.trim().toLowerCase();
+  if (!validarEmail(email)) {
+    mostrarError('addAdminEmail', 'addAdminEmailError', 'Email inválido');
+    return;
+  }
+  const users = loadUsers();
+  const userToUpdate = users.find(u => u.email === email);
+  if (!userToUpdate) {
+    mostrarError('addAdminEmail', 'addAdminEmailError', 'No existe un usuario registrado con ese correo.');
+    return;
+  }
+  userToUpdate.role = 'admin';
+  saveUsers(users);
+  emailInput.value = '';
+  renderAdminPanel();
+  actualizarDOMAuthState();
+  mostrarToast(`${email} ahora es administrador.`);
+}
+
+function createPost(sessionUser, message, imageDataUrl) {
+  const newPost = {
+    id: Date.now(),
+    author: sessionUser.nombre,
+    userId: sessionUser.userId,
+    mensaje: message,
+    image: imageDataUrl,
+    createdAt: new Date().toISOString()
+  };
+
+  posts.unshift(newPost);
+  savePosts(posts);
+  renderPosts();
+  document.getElementById('postForm').reset();
+  mostrarToast('Publicación creada.');
+}
+
+function handleDeletePost(postId) {
+  posts = posts.filter(post => post.id !== postId);
+  savePosts(posts);
+  renderPosts();
+  mostrarToast('Publicación eliminada.');
+}
+
+function handlePostSubmit(e) {
+  e.preventDefault();
+
+  const sessionUser = getSessionUser();
+  if (!sessionUser) {
+    openModal('loginModal');
+    return;
+  }
+
+  const message = document.getElementById('postMessage').value.trim();
+  if (!message) {
+    mostrarError('postMessage', 'postMessageError', 'Escribe algo para publicar.');
+    return;
+  }
+
+  const imageInput = document.getElementById('postImage');
+  const file = imageInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      createPost(sessionUser, message, event.target.result);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    createPost(sessionUser, message, null);
+  }
+}
+
+function handleAdminAddEvent(e) {
+  e.preventDefault();
+
+  const sessionUser = getSessionUser();
+  if (!sessionUser || sessionUser.role !== 'admin') {
+    mostrarToast('Solo administradores pueden agregar eventos.');
+    return;
+  }
+
+  const title = document.getElementById('adminEventTitle').value.trim();
+  const horario = document.getElementById('adminEventHorario').value.trim();
+  const descripcion = document.getElementById('adminEventDescription').value.trim();
+  const icono = document.getElementById('adminEventIcon').value.trim() || '✨';
+
+  if (!title || !horario || !descripcion) {
+    mostrarToast('Completa todos los campos para agregar un evento.');
+    return;
+  }
+
+  const newEvent = {
+    id: Date.now(),
+    titulo: title,
+    horario,
+    descripcion,
+    requiresAuth: true,
+    icono
+  };
+
+  customEvents.unshift(newEvent);
+  saveCustomEvents(customEvents);
+  events = [...DEFAULT_EVENTS, ...customEvents];
+  renderEvents();
+  renderRegistrationSummary();
+  document.getElementById('adminAddEventForm').reset();
+  mostrarToast('Evento agregado correctamente.');
+}
+
+function handleAdminAddOtherEvent(e) {
+  e.preventDefault();
+
+  const sessionUser = getSessionUser();
+  if (!sessionUser || sessionUser.role !== 'admin') {
+    mostrarToast('Solo administradores pueden crear otros eventos.');
+    return;
+  }
+
+  const title = document.getElementById('adminOtherEventTitle').value.trim();
+  const descripcion = document.getElementById('adminOtherEventDescription').value.trim();
+
+  if (!title || !descripcion) {
+    mostrarToast('Completa todos los campos para crear el otro evento.');
+    return;
+  }
+
+  const otherEvent = {
+    id: Date.now(),
+    titulo: title,
+    descripcion
+  };
+
+  otherEvents.unshift(otherEvent);
+  saveOtherEvents(otherEvents);
+  renderOtherEventsSection();
+  document.getElementById('adminAddOtherEventForm').reset();
+  mostrarToast('Otro evento agregado a la sección correctamente.');
+}
+
+function initializeEvents() {
+  customEvents = loadCustomEvents();
+  otherEvents = loadOtherEvents();
+  posts = loadPosts();
+  complaints = loadComplaints();
+  adminMode = loadAdminMode();
+  events = [...DEFAULT_EVENTS, ...customEvents];
+}
+
 /**
  * Simula la inscripción a un evento
  * Muestra un mensaje de éxito
@@ -801,6 +1144,7 @@ function actualizarDOMAuthState() {
   const registerBtn = document.getElementById('registerBtn');
   const userGreeting = document.getElementById('userGreeting');
   const userNameDisplay = document.getElementById('userNameDisplay');
+  const adminToggleBtn = document.getElementById('toggleAdminModeBtn');
 
   if (sessionUser) {
     // Usuario logueado
@@ -808,17 +1152,32 @@ function actualizarDOMAuthState() {
     registerBtn.style.display = 'none';
     userGreeting.style.display = 'flex';
     userNameDisplay.textContent = `Hola, ${escapeHtml(sessionUser.nombre)}`;
+    if (adminToggleBtn) {
+      adminToggleBtn.style.display = sessionUser.role === 'admin' ? 'block' : 'none';
+    }
   } else {
     // Usuario NO logueado
     loginBtn.style.display = 'block';
     registerBtn.style.display = 'block';
     userGreeting.style.display = 'none';
+    if (adminToggleBtn) {
+      adminToggleBtn.style.display = 'none';
+    }
   }
 
-  // Re-renderizar eventos y resumen de registro
+  // Mantener el modo admin activo si corresponde
+  if (sessionUser && sessionUser.role === 'admin') {
+    setAdminMode(adminMode);
+  } else {
+    setAdminMode(false);
+  }
+
+  // Re-renderizar eventos, otros eventos y publicaciones
   userInscriptions = loadInscriptions();
   renderEvents();
   renderRegistrationSummary();
+  renderOtherEventsSection();
+  renderPosts();
 }
 
 // ============================================================================
@@ -949,12 +1308,26 @@ function handleContactSubmit(e) {
     return;
   }
 
+  // Guardar queja para administradores
+  const sessionUser = getSessionUser();
+  const complaint = {
+    id: Date.now(),
+    nombre: sessionUser ? sessionUser.nombre : escapeHtml(nombre),
+    email: sessionUser ? sessionUser.email : email.toLowerCase().trim(),
+    mensaje: escapeHtml(mensaje),
+    createdAt: new Date().toISOString()
+  };
+  complaints.unshift(complaint);
+  saveComplaints(complaints);
+
   // Simular envío (en producción, hacer POST a servidor)
   mostrarToast('¡Mensaje enviado! Nos pondremos en contacto pronto. 📧');
   document.getElementById('contactForm').reset();
   document.getElementById('contactSuccess').style.display = 'block';
   document.getElementById('contactSuccess').textContent =
     'Gracias por tu mensaje. Responderemos pronto.';
+
+  renderAdminPanel();
 
   // Ocultar mensaje después de 4 segundos
   setTimeout(() => {
@@ -967,7 +1340,7 @@ function handleContactSubmit(e) {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Actualizar estado de autenticación al cargar
+  initializeEvents();
   actualizarDOMAuthState();
 
   // ---- EVENTOS DEL HEADER ----
@@ -985,6 +1358,25 @@ document.addEventListener('DOMContentLoaded', () => {
     mostrarToast('Sesión cerrada. ¡Hasta pronto! 👋');
   });
 
+  const adminToggleBtn = document.getElementById('toggleAdminModeBtn');
+  if (adminToggleBtn) {
+    adminToggleBtn.addEventListener('click', () => {
+      toggleAdminMode();
+    });
+  }
+
+  const openAdminModalBtn = document.getElementById('openAdminModalBtn');
+  if (openAdminModalBtn) {
+    openAdminModalBtn.addEventListener('click', () => {
+      openModal('adminModal');
+    });
+  }
+
+  const addAdminForm = document.getElementById('addAdminForm');
+  if (addAdminForm) {
+    addAdminForm.addEventListener('submit', handleAddAdminByEmail);
+  }
+
   // ---- CERRAR MODALES ----
   document.getElementById('closeLoginBtn').addEventListener('click', () => {
     closeModal('loginModal');
@@ -993,6 +1385,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeRegisterBtn').addEventListener('click', () => {
     closeModal('registerModal');
   });
+
+  const closeAdminBtn = document.getElementById('closeAdminBtn');
+  if (closeAdminBtn) {
+    closeAdminBtn.addEventListener('click', () => {
+      closeModal('adminModal');
+    });
+  }
 
   // ---- CAMBIAR ENTRE MODALES ----
   document.getElementById('switchToRegisterBtn').addEventListener('click', (e) => {
@@ -1011,10 +1410,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
   document.getElementById('registerForm').addEventListener('submit', handleRegisterSubmit);
   document.getElementById('contactForm').addEventListener('submit', handleContactSubmit);
+  document.getElementById('postForm').addEventListener('submit', handlePostSubmit);
+  document.getElementById('adminAddEventForm').addEventListener('submit', handleAdminAddEvent);
+  document.getElementById('adminAddOtherEventForm').addEventListener('submit', handleAdminAddOtherEvent);
 
   // ---- CARRUSEL ----
   inicializarCarrusel();
 
   // ---- EVENTOS ----
   renderEvents();
+  renderOtherEventsSection();
+  renderPosts();
 });

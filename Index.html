@@ -9,7 +9,7 @@
   <!-- Título de la página -->
   <title>Landing Semántica - PixelHub</title>
   <!-- Enlace al archivo CSS -->
-  <link rel="stylesheet" href="../estilo.css" />
+  <link rel="stylesheet" href="css/estilo.css" />
 </head>
 <!-- Fin de la sección head -->
 <!-- Cuerpo del documento -->
@@ -21,7 +21,7 @@
   <header>
     <!-- Logo de la página -->
     <div class="logo">
-      <img src="../imagenes/logo.png" alt="Logo de PixelHub" />
+      <img src="imagenes/logo.png" alt="Logo de PixelHub" />
       <div>
         <strong>PixelHub</strong>
       </div>
@@ -30,8 +30,8 @@
     <!-- Navegación principal -->
     <nav aria-label="Navegación principal">
       <a href="#hero">Inicio</a>
-      <a href="../comunidad.html">Comunidad</a>
-      <a href="../minecraft.html">Servidor de Minecraft</a>
+      <a href="html/comunidad.html">Comunidad</a>
+      <a href="html/minecraft.html">Servidor de Minecraft</a>
     </nav>
     
     <!-- Contenedor de autenticación en el header -->
@@ -44,6 +44,7 @@
       <div id="userGreeting" style="display: none;" class="user-greeting">
         <span id="userNameDisplay" aria-live="polite">Hola, Usuario</span>
         <button id="logoutBtn" class="button secondary" aria-label="Cerrar sesión">Cerrar sesión</button>
+        <button id="toggleAdminModeBtn" class="button secondary" style="display: none;" aria-label="Activar modo admin">Modo Admin</button>
       </div>
     </div>
     
@@ -101,7 +102,7 @@
           &#10094; Anterior
         </button>
         <div class="carousel-wrapper">
-          <img id="carouselImg" src="../imagenes/pixelhub.png" alt="Galería de PixelHub" class="carousel-image" />
+          <img id="carouselImg" src="imagenes/pixelhub.png" alt="Galería de PixelHub" class="carousel-image" />
         </div>
         <button id="nextBtn" class="carousel-btn next" aria-label="Imagen siguiente">
           Siguiente &#10095;
@@ -118,6 +119,33 @@
     </section>
     <!-- FIN SECCIÓN EVENTOS -->
 
+    <!-- SECCIÓN DE OTROS EVENTOS -->
+    <section id="other-events-section" class="events-section" aria-label="Otros eventos">
+      <h2>Otros Eventos</h2>
+      <div id="other-events-container" class="events-container" role="region" aria-live="polite" aria-label="Lista de otros eventos"></div>
+    </section>
+    <!-- FIN SECCIÓN OTROS EVENTOS -->
+
+    <!-- SECCIÓN DE PUBLICACIONES -->
+    <section id="posts-section" class="posts-section" aria-label="Publicaciones de la comunidad">
+      <h2>Publicaciones de la Comunidad</h2>
+      <form id="postForm" class="form-content">
+        <div class="form-group">
+          <label for="postMessage">¿Qué quieres compartir?</label>
+          <textarea id="postMessage" name="mensaje" rows="3" required aria-required="true" aria-describedby="postMessageError"></textarea>
+          <span id="postMessageError" class="error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label for="postImage">Foto de tu casa de Minecraft (opcional)</label>
+          <input type="file" id="postImage" name="postImage" accept="image/*" aria-describedby="postImageError" />
+          <span id="postImageError" class="error" role="alert"></span>
+        </div>
+        <button type="submit" class="button primary">Publicar</button>
+      </form>
+      <div id="postsContainer" class="posts-container" aria-live="polite"></div>
+    </section>
+    <!-- FIN SECCIÓN DE PUBLICACIONES -->
+
     <!-- SECCIÓN DE RESUMEN DE REGISTROS -->
     <section id="registration-summary" class="summary-section" aria-label="Resumen de usuarios e inscripciones">
       <h2>Usuarios e Inscripciones</h2>
@@ -127,16 +155,43 @@
           <ul id="registeredUsersList" class="summary-list"></ul>
         </div>
         <div class="summary-card">
-          <h3>Correos registrados</h3>
-          <ul id="registeredEmailsList" class="summary-list"></ul>
-        </div>
-        <div class="summary-card">
           <h3>Inscripciones por evento</h3>
           <div id="eventInscriptionsList" class="summary-list"></div>
         </div>
       </div>
     </section>
     <!-- FIN SECCIÓN DE RESUMEN DE REGISTROS -->
+
+    <!-- SECCIÓN ADMINISTRATIVA (solo admins en modo admin) -->
+    <section id="admin-only-section" class="summary-section admin-only" style="display: none;" aria-label="Panel administrativo">
+      <div class="admin-panel-header">
+        <h2>Panel Administrativo</h2>
+        <button id="openAdminModalBtn" class="button primary">Abrir panel de administración</button>
+      </div>
+      <div class="summary-columns">
+        <div class="summary-card">
+          <h3>Correos registrados</h3>
+          <ul id="registeredEmailsList" class="summary-list"></ul>
+        </div>
+        <div class="summary-card">
+          <h3>Quejas</h3>
+          <ul id="complaintsList" class="summary-list"></ul>
+        </div>
+        <div class="summary-card">
+          <h3>Administradores</h3>
+          <ul id="adminEmailsList" class="summary-list"></ul>
+          <form id="addAdminForm" class="form-content">
+            <div class="form-group">
+              <label for="addAdminEmail">Añadir administrador con correo:</label>
+              <input type="email" id="addAdminEmail" required aria-required="true" aria-describedby="addAdminEmailError" />
+              <span id="addAdminEmailError" class="error" role="alert"></span>
+            </div>
+            <button type="submit" class="button secondary">Agregar administrador</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- FIN SECCIÓN ADMINISTRATIVA -->
 
     <!-- SECCIÓN DE CONTACTO -->
     <section id="contact-section" class="contact-section" aria-label="Formulario de contacto">
@@ -311,6 +366,62 @@
     </div>
   </div>
   <!-- FIN MODAL REGISTRO -->
+
+  <!-- MODAL DE ADMINISTRADOR -->
+  <div 
+    id="adminModal" 
+    class="modal" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="adminTitle"
+    style="display: none;"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="adminTitle">Panel de Administrador</h2>
+        <button id="closeAdminBtn" class="modal-close" aria-label="Cerrar modal de administrador">×</button>
+      </div>
+      <div class="form-content admin-panel-content">
+        <section class="admin-section">
+          <h3>Agregar evento a la planilla</h3>
+          <form id="adminAddEventForm">
+            <div class="form-group">
+              <label for="adminEventTitle">Título del evento:</label>
+              <input type="text" id="adminEventTitle" required aria-required="true" />
+            </div>
+            <div class="form-group">
+              <label for="adminEventHorario">Horario:</label>
+              <input type="text" id="adminEventHorario" required aria-required="true" />
+            </div>
+            <div class="form-group">
+              <label for="adminEventDescription">Descripción:</label>
+              <textarea id="adminEventDescription" rows="3" required aria-required="true"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="adminEventIcon">Icono (emoji):</label>
+              <input type="text" id="adminEventIcon" maxlength="2" placeholder="Ej. 🏠" />
+            </div>
+            <button type="submit" class="button primary">Agregar evento</button>
+          </form>
+        </section>
+
+        <section class="admin-section">
+          <h3>Crear sección de Otros Eventos</h3>
+          <form id="adminAddOtherEventForm">
+            <div class="form-group">
+              <label for="adminOtherEventTitle">Título:</label>
+              <input type="text" id="adminOtherEventTitle" required aria-required="true" />
+            </div>
+            <div class="form-group">
+              <label for="adminOtherEventDescription">Descripción:</label>
+              <textarea id="adminOtherEventDescription" rows="2" required aria-required="true"></textarea>
+            </div>
+            <button type="submit" class="button secondary">Agregar a Otros Eventos</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
 
   <!-- OVERLAY PARA MODALES -->
   <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
