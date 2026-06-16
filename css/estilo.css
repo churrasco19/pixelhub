@@ -932,3 +932,32 @@ main {
     justify-content: center;
   }
 }
+
+/* ============================================================================
+   FOOTER
+   ============================================================================ */
+footer {
+  background: var(--primary);
+  color: var(--primary-contrast);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  margin-top: 3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+footer .footer-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  gap: 0.75rem;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+footer strong {
+  font-weight: 700;
+}
