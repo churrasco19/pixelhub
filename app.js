@@ -819,16 +819,22 @@ function renderPosts() {
 
   if (posts.length === 0) {
     container.innerHTML = '<p class="event-cta">Aún no hay publicaciones. Inicia sesión para compartir tu casa de Minecraft.</p>';
+    updateCarouselPosts();
     return;
   }
 
   const sessionUser = getSessionUser();
-  const canManagePosts = adminMode && sessionUser && sessionUser.role === 'admin';
 
   posts.forEach(post => {
     const postCard = document.createElement('article');
     postCard.className = 'post-card';
     postCard.setAttribute('role', 'article');
+    
+    const canDelete = sessionUser && (sessionUser.userId === post.userId || (adminMode && sessionUser.role === 'admin'));
+    const likes = post.likes || 0;
+    const comments = post.comments || [];
+    const isLiked = post.likedBy && post.likedBy.includes(sessionUser?.userId);
+    
     postCard.innerHTML = `
       <div class="post-header">
         <strong>${escapeHtml(post.author)}</strong>
@@ -836,10 +842,149 @@ function renderPosts() {
       </div>
       <p class="post-message">${escapeHtml(post.mensaje).replace(/\n/g, '<br/>')}</p>
       ${post.image ? `<img src="${post.image}" alt="Imagen de publicación de ${escapeHtml(post.author)}" class="post-image" />` : ''}
-      ${canManagePosts ? `<button class="button secondary" type="button" onclick="handleDeletePost(${post.id})">Eliminar publicación</button>` : ''}
+      <div class="post-actions">
+        <button class="post-action-btn ${isLiked ? 'liked' : ''}" type="button" onclick="handleLikePost(${post.id})">
+          ❤️ Me gusta (${likes})
+        </button>
+        <button class="post-action-btn" type="button" onclick="openCommentsModal(${post.id})">
+          💬 Comentarios (${comments.length})
+        </button>
+        ${canDelete ? `<button class="post-action-btn delete" type="button" onclick="handleDeletePost(${post.id})">🗑️ Eliminar</button>` : ''}
+      </div>
     `;
     container.appendChild(postCard);
   });
+  
+  updateCarouselPosts();
+}
+
+function handleLikePost(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const sessionUser = getSessionUser();
+  if (!sessionUser) {
+    openModal('loginModal');
+    return;
+  }
+
+  if (!post.likedBy) {
+    post.likedBy = [];
+  }
+  if (!post.likes) {
+    post.likes = 0;
+  }
+
+  const likeIndex = post.likedBy.indexOf(sessionUser.userId);
+  if (likeIndex > -1) {
+    post.likedBy.splice(likeIndex, 1);
+    post.likes = Math.max(0, post.likes - 1);
+  } else {
+    post.likedBy.push(sessionUser.userId);
+    post.likes++;
+  }
+
+  savePosts(posts);
+  renderPosts();
+}
+
+function openCommentsModal(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  if (!post.comments) {
+    post.comments = [];
+  }
+
+  let commentsHTML = '<div class="comments-list">';
+  if (post.comments.length === 0) {
+    commentsHTML += '<p style="text-align: center; color: var(--text);">No hay comentarios aún. ¡Sé el primero!</p>';
+  } else {
+    post.comments.forEach(comment => {
+      commentsHTML += `
+        <div class="comment-item">
+          <div class="comment-author">${escapeHtml(comment.author)}</div>
+          <p class="comment-text">${escapeHtml(comment.text)}</p>
+        </div>
+      `;
+    });
+  }
+  commentsHTML += '</div>';
+
+  const sessionUser = getSessionUser();
+  let formHTML = '';
+  if (sessionUser) {
+    formHTML = `
+      <form onsubmit="handleAddComment(event, ${postId})" style="margin-top: 1rem; border-top: 1px solid rgba(0, 90, 156, 0.2); padding-top: 1rem;">
+        <textarea id="commentText" placeholder="Escribe un comentario..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--primary); border-radius: 8px; font-family: inherit; resize: vertical; min-height: 80px; background: var(--bg); color: var(--text);" required></textarea>
+        <button type="submit" class="button primary" style="width: 100%; margin-top: 0.75rem;">Comentar</button>
+      </form>
+    `;
+  } else {
+    formHTML = '<p style="text-align: center; color: var(--text); margin-top: 1rem;"><a href="#" onclick="openModal(\'loginModal\'); return false;" style="color: var(--primary);">Inicia sesión para comentar</a></p>';
+  }
+
+  const modal = document.createElement('div');
+  modal.className = 'comments-modal active';
+  modal.innerHTML = `
+    <div class="comments-modal-header">
+      <h3>Comentarios de ${escapeHtml(post.author)}</h3>
+      <button type="button" class="comments-close-btn" onclick="this.closest('.comments-modal').remove(); document.getElementById('commentOverlay').remove();">×</button>
+    </div>
+    ${commentsHTML}
+    ${formHTML}
+  `;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'commentOverlay';
+  overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;';
+  overlay.onclick = function() {
+    modal.remove();
+    this.remove();
+  };
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
+
+  window.currentCommentPostId = postId;
+}
+
+function handleAddComment(e, postId) {
+  e.preventDefault();
+
+  const sessionUser = getSessionUser();
+  if (!sessionUser) {
+    openModal('loginModal');
+    return;
+  }
+
+  const commentText = document.getElementById('commentText').value.trim();
+  if (!commentText) {
+    return;
+  }
+
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  if (!post.comments) {
+    post.comments = [];
+  }
+
+  post.comments.push({
+    author: sessionUser.nombre,
+    text: commentText,
+    createdAt: new Date().toISOString()
+  });
+
+  savePosts(posts);
+  
+  // Cerrar modal y reabrirlo actualizado
+  document.querySelector('.comments-modal').remove();
+  document.getElementById('commentOverlay').remove();
+  openCommentsModal(postId);
+  
+  mostrarToast('Comentario agregado.');
+}
 }
 
 function setAdminMode(value) {
@@ -947,7 +1092,10 @@ function createPost(sessionUser, message, imageDataUrl) {
     userId: sessionUser.userId,
     mensaje: message,
     image: imageDataUrl,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    likes: 0,
+    likedBy: [],
+    comments: []
   };
 
   posts.unshift(newPost);
@@ -1333,6 +1481,42 @@ function handleContactSubmit(e) {
   setTimeout(() => {
     document.getElementById('contactSuccess').style.display = 'none';
   }, 4000);
+}
+
+// ============================================================================
+// CARRUSEL DE POSTS
+// ============================================================================
+
+let carouselPostIndex = 0;
+let carouselPostInterval = null;
+
+function updateCarouselPosts() {
+  const carouselImage = document.getElementById('carouselPostImage');
+  if (!carouselImage) return;
+
+  const postsWithImages = posts.filter(post => post.image);
+
+  if (postsWithImages.length === 0) {
+    carouselImage.src = '';
+    carouselImage.alt = 'No hay imágenes en los posts';
+    carouselPostIndex = 0;
+    clearInterval(carouselPostInterval);
+    return;
+  }
+
+  // Mostrar primera imagen
+  carouselImage.src = postsWithImages[carouselPostIndex].image;
+  carouselImage.alt = `Imagen de ${escapeHtml(postsWithImages[carouselPostIndex].author)}`;
+
+  // Limpiar intervalo anterior
+  clearInterval(carouselPostInterval);
+
+  // Cambiar imagen cada 2 segundos
+  carouselPostInterval = setInterval(() => {
+    carouselPostIndex = (carouselPostIndex + 1) % postsWithImages.length;
+    carouselImage.src = postsWithImages[carouselPostIndex].image;
+    carouselImage.alt = `Imagen de ${escapeHtml(postsWithImages[carouselPostIndex].author)}`;
+  }, 2000);
 }
 
 // ============================================================================

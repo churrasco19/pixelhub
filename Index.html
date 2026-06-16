@@ -129,20 +129,32 @@
     <!-- SECCIÓN DE PUBLICACIONES -->
     <section id="posts-section" class="posts-section" aria-label="Publicaciones de la comunidad">
       <h2>Publicaciones de la Comunidad</h2>
-      <form id="postForm" class="form-content">
-        <div class="form-group">
-          <label for="postMessage">¿Qué quieres compartir?</label>
-          <textarea id="postMessage" name="mensaje" rows="3" required aria-required="true" aria-describedby="postMessageError"></textarea>
-          <span id="postMessageError" class="error" role="alert"></span>
+      <div class="posts-wrapper">
+        <!-- Carrusel a la izquierda -->
+        <div class="posts-carousel">
+          <div class="carousel-posts-container">
+            <img id="carouselPostImage" src="" alt="Imagen del carrusel de posts" class="carousel-post-image" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="postImage">Foto de tu casa de Minecraft (opcional)</label>
-          <input type="file" id="postImage" name="postImage" accept="image/*" aria-describedby="postImageError" />
-          <span id="postImageError" class="error" role="alert"></span>
+        
+        <!-- Contenedor principal de posts -->
+        <div class="posts-main-content">
+          <form id="postForm" class="form-content">
+            <div class="form-group">
+              <label for="postMessage">¿Qué quieres compartir?</label>
+              <textarea id="postMessage" name="mensaje" rows="3" required aria-required="true" aria-describedby="postMessageError"></textarea>
+              <span id="postMessageError" class="error" role="alert"></span>
+            </div>
+            <div class="form-group">
+              <label for="postImage">Foto de tu casa de Minecraft (opcional)</label>
+              <input type="file" id="postImage" name="postImage" accept="image/*" aria-describedby="postImageError" />
+              <span id="postImageError" class="error" role="alert"></span>
+            </div>
+            <button type="submit" class="button primary">Publicar</button>
+          </form>
+          <div id="postsContainer" class="posts-container" aria-live="polite"></div>
         </div>
-        <button type="submit" class="button primary">Publicar</button>
-      </form>
-      <div id="postsContainer" class="posts-container" aria-live="polite"></div>
+      </div>
     </section>
     <!-- FIN SECCIÓN DE PUBLICACIONES -->
 
@@ -431,6 +443,7 @@
     <div class="footer-content">
       <p><strong>Profesor:</strong> Victor Armando Vásquez Muñoz</p>
       <p><strong>Asignatura:</strong> Programacion Front end</p>
+      <p><strong>Sección:</strong> # 2026/O TI3031/D-FB50-N3-P13-C1/D La Granja FB5</p>
     </div>
   </footer>
   <!-- Fin del footer -->
